@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.management.service.repository.CollegeRepository">
+    <resultMap id="collegeResultMap" type="com.user.management.service.entity.CollegeEntity">
+        <id column="college_id" property="collegeId"/>
+        <result column="id" property="id"/>
+        <result column="college_name" property="collegeName"/>
+        <result column="class_count" property="classCount"/>
+        <result column="is_existence" property="isExistence"/>
+    </resultMap>
+    <resultMap id="collegeNamesResultMap"
+               type="com.user.management.service.entity.CollegeEntity">
+        <result column="id" property="id"/>
+        <result column="college_name" property="collegeName"/>
+    </resultMap>
+    <select id="selectCollegePage" resultMap="collegeResultMap">
+        SELECT college_id,
+               college_name,
+               class_count,
+               is_existence,
+               id
+        FROM college
+    </select>
+    <select id="selectCollegeNames" resultMap="collegeNamesResultMap">
+        SELECT college_name, id
+        FROM college
+        where is_existence = true
+    </select>
+</mapper>

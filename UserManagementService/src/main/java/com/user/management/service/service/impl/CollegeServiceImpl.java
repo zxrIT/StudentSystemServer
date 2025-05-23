@@ -1,0 +1,119 @@
+package com.user.management.service.service.impl;
+
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.common.exception.entity.user.SelectCollegeException;
+import com.common.exception.entity.user.UpdateCollegeException;
+import com.common.response.entity.BaseResponse;
+import com.common.response.entity.BaseResponseUtil;
+import com.common.utils.JsonSerialization;
+import com.user.management.service.entity.CollegeEntity;
+import com.user.management.service.repository.CollegeRepository;
+import com.user.management.service.request.UpdateCollegeIsExistenceParam;
+import com.user.management.service.request.UpdateCollegeParam;
+import com.user.management.service.service.CollegeService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+@SuppressWarnings("all")
+public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEntity>
+        implements CollegeService {
+    private final CollegeRepository collegeRepository;
+
+    @Override
+    public String getCollege(Integer quantity, Integer pages) {
+        try {
+            if (quantity <= 0 || pages <= 0) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误"
+                ));
+            }
+            Page<CollegeEntity> page = new Page<>(pages, quantity);
+            Page<CollegeEntity> collegeEntityPage = collegeRepository.selectCollegePage(page);
+            return JsonSerialization.toJson(new BaseResponse<Page<CollegeEntity>>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, collegeEntityPage
+            ));
+        } catch (Exception exception) {
+            throw new SelectCollegeException(exception.getMessage());
+        }
+    }
+
+    @Override
+    @DSTransactional
+    public String updateCollege(UpdateCollegeParam updateCollegeParam) {
+        try {
+            CollegeEntity collegeEntity =
+                    collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>()
+                            .eq(CollegeEntity::getId, updateCollegeParam.getId()));
+            if (collegeEntity == null) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误，学院不存在"
+                ));
+            }
+            if (collegeRepository.exists(new LambdaQueryWrapper<CollegeEntity>().eq(CollegeEntity::getCollegeId,
+                    updateCollegeParam.getCollegeId()).ne(CollegeEntity::getId, updateCollegeParam.getId()))) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误，学院代码已存在"
+                ));
+            }
+            collegeEntity.setCollegeId(updateCollegeParam.getCollegeId());
+            collegeEntity.setCollegeName(updateCollegeParam.getCollegeName());
+            collegeRepository.update(collegeEntity, new LambdaUpdateWrapper<CollegeEntity>()
+                    .eq(CollegeEntity::getId, updateCollegeParam.getId()));
+            return JsonSerialization.toJson(new BaseResponse<String>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "修改成功"
+            ));
+        } catch (Exception exception) {
+            throw new UpdateCollegeException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public String getCollegeNames() {
+        try {
+            List<CollegeEntity> collegeEntities = collegeRepository.selectCollegeNames();
+            return JsonSerialization.toJson(new BaseResponse<List<CollegeEntity>>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, collegeEntities
+            ));
+        } catch (Exception exception) {
+            throw new SelectCollegeException(exception.getMessage());
+        }
+    }
+
+    @Override
+    @DSTransactional
+    public String updateCollegeIsExistence(UpdateCollegeIsExistenceParam updateCollegeIsExistenceParam) {
+        try {
+            CollegeEntity collegeEntity =
+                    collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(CollegeEntity::getId,
+                            updateCollegeIsExistenceParam.getId()));
+            if (collegeEntity == null) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误，学院不存在"
+                ));
+            }
+            collegeEntity.setIsExistence(!collegeEntity.getIsExistence());
+            collegeRepository.update(collegeEntity, new LambdaUpdateWrapper<CollegeEntity>().
+                    eq(CollegeEntity::getId, updateCollegeIsExistenceParam.getId()));
+            return JsonSerialization.toJson(new BaseResponse<String>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE,
+                    collegeEntity.getIsExistence().equals(true) ? "启用成功" : "停用成功"
+            ));
+        } catch (Exception exception) {
+            throw new UpdateCollegeException(exception.getMessage());
+        }
+    }
+}

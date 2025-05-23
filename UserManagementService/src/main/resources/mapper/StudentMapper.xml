@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.management.service.repository.StudentRepository">
+    <resultMap id="studentResultMap" type="com.user.management.service.entity.StudentEntity">
+        <id column="student_id" property="studentId"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_class" property="studentClass"/>
+        <result column="student_sex" property="studentSex"/>
+        <result column="student_icon" property="studentIcon"/>
+        <result column="student_grade" property="studentGrade"/>
+        <result column="role_id" property="roleId"/>
+    </resultMap>
+    <resultMap id="studentSimpleResultMap" type="com.user.management.service.entity.StudentEntity">
+        <id column="student_id" property="studentId"/>
+        <result column="student_name" property="studentName"/>
+        <result column="student_class" property="studentClass"/>
+        <result column="student_icon" property="studentIcon"/>
+        <result column="student_grade" property="studentGrade"/>
+    </resultMap>
+    <select id="selectStudentsBasicInfoByClass" parameterType="string" resultMap="studentSimpleResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_icon,
+               student_grade
+        FROM student
+        WHERE student_class = #{studentClass}
+    </select>
+    <select id="selectStudentPage" resultMap="studentResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_sex,
+               student_icon,
+               student_grade,
+               role_id
+        FROM student
+    </select>
+    <select id="selectStudentsByClass" parameterType="string" resultMap="studentResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_sex,
+               student_icon,
+               student_grade,
+               role_id
+        FROM student
+        WHERE student_class LIKE CONCAT('%', #{studentClass}, '%')
+    </select>
+    <select id="selectStudentsByGrade" parameterType="string" resultMap="studentResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_sex,
+               student_icon,
+               student_grade,
+               role_id
+        FROM student
+        WHERE student_grade LIKE CONCAT('%', #{studentGrade}, '%')
+    </select>
+    <select id="selectStudentsByName" parameterType="string" resultMap="studentResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_sex,
+               student_icon,
+               student_grade,
+               role_id
+        FROM student
+        WHERE student_name LIKE CONCAT('%', #{studentName}, '%')
+    </select>
+    <select id="selectStudentById" parameterType="string" resultMap="studentResultMap">
+        SELECT student_id,
+               student_name,
+               student_class,
+               student_sex,
+               student_icon,
+               student_grade,
+               role_id
+        FROM student
+        WHERE student_id LIKE CONCAT('%', #{studentId}, '%')
+    </select>
+</mapper>
