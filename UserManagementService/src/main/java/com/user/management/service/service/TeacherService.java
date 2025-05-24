@@ -12,4 +12,8 @@ public interface TeacherService extends IService<TeacherEntity> {
     String resetPassword(String teacherId);
 
     String getSelectTeacher(Integer payload, String content, Integer quantity, Integer pages);
+
+    String getAllCounselor();
+
+    String getAllTeacher();
 }

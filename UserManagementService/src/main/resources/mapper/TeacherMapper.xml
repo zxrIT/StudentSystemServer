@@ -52,4 +52,27 @@
         FROM teacher
         WHERE teacher_name LIKE CONCAT('%', #{teacherName}, '%')
     </select>
+    <select id="selectAllCounselor" resultMap="teacherResultMap">
+        SELECT teacher_id,
+               teacher_name,
+               teacher_college,
+               teacher_job,
+               teacher_icon,
+               is_counselor,
+               id
+        FROM teacher
+        WHERE is_counselor = true
+        ORDER BY CONVERT(teacher_name USING gbk) COLLATE gbk_chinese_ci
+    </select>
+    <select id="selectAllTeacher" resultMap="teacherResultMap">
+        SELECT teacher_id,
+               teacher_name,
+               teacher_college,
+               teacher_job,
+               teacher_icon,
+               is_counselor,
+               id
+        FROM teacher
+        ORDER BY CONVERT(teacher_name USING gbk) COLLATE gbk_chinese_ci
+    </select>
 </mapper>

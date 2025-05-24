@@ -63,4 +63,24 @@ public class TeacherController {
     public String resetPassword(@PathVariable String teacherId) {
         return teacherService.resetPassword(teacherId);
     }
+
+    @Operation(summary = "查询全部辅导员")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @GetMapping("/getAllCounselor")
+    public String getAllCounselor() {
+        return teacherService.getAllCounselor();
+    }
+
+    @Operation(summary = "查询全部教师")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @GetMapping("/getAllTeacher")
+    public String getAllTeacher() {
+        return teacherService.getAllTeacher();
+    }
 }

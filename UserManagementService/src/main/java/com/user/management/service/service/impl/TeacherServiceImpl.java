@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -137,6 +139,30 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
                             BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPage
                     ));
             }
+        } catch (Exception exception) {
+            throw new SelectTeacherException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public String getAllCounselor() {
+        try {
+            List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllCounselor();
+            return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntities
+            ));
+        } catch (Exception exception) {
+            throw new SelectTeacherException(exception.getMessage());
+        }
+    }
+
+    @Override
+    public String getAllTeacher() {
+        try {
+            List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllTeacher();
+            return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntities
+            ));
         } catch (Exception exception) {
             throw new SelectTeacherException(exception.getMessage());
         }

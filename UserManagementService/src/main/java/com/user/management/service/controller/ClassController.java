@@ -1,5 +1,6 @@
 package com.user.management.service.controller;
 
+import com.user.management.service.request.UpdateClassParam;
 import com.user.management.service.service.ClassNameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,6 +26,17 @@ public class ClassController {
     @GetMapping("/getClassNames")
     public String getClassNames() {
         return classNameService.getClassNames();
+    }
+
+    @Operation(summary = "修改班级数据")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "300", description = "请求参数错误，班级信息不存在"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @PutMapping("/updateClassName")
+    public String updateClassName(@RequestBody UpdateClassParam updateClassParam) {
+        return classNameService.updateClassName(updateClassParam);
     }
 
     @Operation(summary = "删除班级")

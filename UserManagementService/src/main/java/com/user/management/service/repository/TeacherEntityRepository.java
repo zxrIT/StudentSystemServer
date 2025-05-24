@@ -7,6 +7,8 @@ import com.user.management.service.entity.TeacherEntity;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @DS("master_teacher")
 public interface TeacherEntityRepository extends BaseMapper<TeacherEntity> {
@@ -20,4 +22,8 @@ public interface TeacherEntityRepository extends BaseMapper<TeacherEntity> {
 
     Page<TeacherEntity> selectTeacherByName(Page<TeacherEntity> page,
                                             @Param("teacherName") String teacherName);
+
+    List<TeacherEntity> selectAllCounselor();
+
+    List<TeacherEntity> selectAllTeacher();
 }
