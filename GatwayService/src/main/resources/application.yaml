@@ -1,0 +1,22 @@
+spring:
+  web:
+    resources:
+      static-locations: file:/Users/zengxiangrui/DistributedProject/StudentSystem/static/
+  cloud:
+    gateway:
+      routes:
+        - id: user-management-service
+          uri: lb://user-management-service
+          predicates:
+            - Path=/user/**
+        - id: authentication-service
+          uri: lb://authentication-service
+          predicates:
+            - Path=/authentication/**
+health:
+  auth:
+    excludePaths:
+      - /authentication/**
+logging:
+  level:
+    org.springframework.cloud.gateway: debug

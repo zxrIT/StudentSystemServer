@@ -9,6 +9,7 @@
         <result column="student_icon" property="studentIcon"/>
         <result column="student_grade" property="studentGrade"/>
         <result column="role_id" property="roleId"/>
+        <result column="id" property="id"/>
     </resultMap>
     <resultMap id="studentSimpleResultMap" type="com.user.management.service.entity.StudentEntity">
         <id column="student_id" property="studentId"/>
@@ -16,13 +17,17 @@
         <result column="student_class" property="studentClass"/>
         <result column="student_icon" property="studentIcon"/>
         <result column="student_grade" property="studentGrade"/>
+        <result column="college" property="college"/>
+        <result column="id" property="id"/>
     </resultMap>
     <select id="selectStudentsBasicInfoByClass" parameterType="string" resultMap="studentSimpleResultMap">
         SELECT student_id,
                student_name,
                student_class,
                student_icon,
-               student_grade
+               student_grade,
+               college,
+               id
         FROM student
         WHERE student_class = #{studentClass}
     </select>
@@ -33,7 +38,9 @@
                student_sex,
                student_icon,
                student_grade,
-               role_id
+               role_id,
+               college,
+               id
         FROM student
     </select>
     <select id="selectStudentsByClass" parameterType="string" resultMap="studentResultMap">
@@ -43,7 +50,9 @@
                student_sex,
                student_icon,
                student_grade,
-               role_id
+               role_id,
+               college,
+               id
         FROM student
         WHERE student_class LIKE CONCAT('%', #{studentClass}, '%')
     </select>
@@ -54,7 +63,9 @@
                student_sex,
                student_icon,
                student_grade,
-               role_id
+               role_id,
+               college,
+               id
         FROM student
         WHERE student_grade LIKE CONCAT('%', #{studentGrade}, '%')
     </select>
@@ -65,7 +76,9 @@
                student_sex,
                student_icon,
                student_grade,
-               role_id
+               role_id,
+               college,
+               id
         FROM student
         WHERE student_name LIKE CONCAT('%', #{studentName}, '%')
     </select>
@@ -76,7 +89,9 @@
                student_sex,
                student_icon,
                student_grade,
-               role_id
+               role_id,
+               college,
+               id
         FROM student
         WHERE student_id LIKE CONCAT('%', #{studentId}, '%')
     </select>

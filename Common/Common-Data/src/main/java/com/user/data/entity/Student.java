@@ -12,4 +12,6 @@ public class Student {
     private Integer studentGrade;
     private String password;
     private Integer roleId;
+    private String college;
+    private String id;
 }

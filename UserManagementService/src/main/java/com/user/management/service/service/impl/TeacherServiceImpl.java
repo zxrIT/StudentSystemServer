@@ -10,7 +10,9 @@ import com.common.response.entity.BaseResponse;
 import com.common.response.entity.BaseResponseUtil;
 import com.common.utils.Encryption;
 import com.common.utils.JsonSerialization;
+import com.user.management.service.entity.CollegeEntity;
 import com.user.management.service.entity.TeacherEntity;
+import com.user.management.service.repository.CollegeRepository;
 import com.user.management.service.repository.TeacherEntityRepository;
 import com.user.management.service.request.UpdateTeacherParam;
 import com.user.management.service.service.TeacherService;
@@ -27,9 +29,10 @@ import java.util.List;
 public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, TeacherEntity>
         implements TeacherService {
     private final TeacherEntityRepository teacherEntityRepository;
+    private final CollegeRepository collegeRepository;
 
     @Override
-    public String getTeacher(Integer quantity, Integer pages) {
+    public String getTeacher(Integer quantity, Integer pages) throws SelectTeacherException {
         try {
             if (quantity <= 0 || pages <= 0) {
                 log.error("请求参数错误");
@@ -39,6 +42,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
             }
             Page<TeacherEntity> page = new Page<>(pages, quantity);
             Page<TeacherEntity> teacherEntityPage = teacherEntityRepository.selectTeacherPage(page);
+            teacherEntityPage.getRecords().stream().forEach(teacherEntity -> {
+                CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                        CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                ));
+                teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+            });
             return JsonSerialization.toJson(new BaseResponse<Page<TeacherEntity>>(
                     BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPage
             ));
@@ -48,8 +57,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     }
 
     @Override
-    @DSTransactional
-    public String updateTeacher(UpdateTeacherParam updateTeacherParam) {
+    @DSTransactional(rollbackFor = Exception.class)
+    public String updateTeacher(UpdateTeacherParam updateTeacherParam) throws UpdateTeacherException {
         try {
             TeacherEntity teacherEntity =
                     teacherEntityRepository.selectOne(new LambdaQueryWrapper<TeacherEntity>()
@@ -68,15 +77,23 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
                         BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误，教师序号已存在"
                 ));
             }
+            CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(CollegeEntity::getCollegeName,
+                    updateTeacherParam.getTeacherCollege()));
+            if (collegeEntity == null) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "学院不存在"
+                ));
+            }
             teacherEntity.setTeacherId(updateTeacherParam.getTeacherId());
-            teacherEntity.setTeacherCollege(updateTeacherParam.getTeacherCollege());
+            teacherEntity.setTeacherCollege(collegeEntity.getCollegeId());
             teacherEntity.setTeacherName(updateTeacherParam.getTeacherName());
             teacherEntity.setTeacherJob(updateTeacherParam.getTeacherJob());
             teacherEntity.setIsCounselor(updateTeacherParam.getIsCounselor());
             teacherEntityRepository.update(teacherEntity, new LambdaQueryWrapper<TeacherEntity>().eq(TeacherEntity::getId,
                     updateTeacherParam.getId()));
             return JsonSerialization.toJson(new BaseResponse<String>(
-                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "修改成功"
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "修改成功有部分数据未变下次登录后刷新"
             ));
         } catch (Exception exception) {
             throw new UpdateTeacherException(exception.getMessage());
@@ -84,8 +101,8 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     }
 
     @Override
-    @DSTransactional
-    public String resetPassword(String teacherId) {
+    @DSTransactional(rollbackFor = Exception.class)
+    public String resetPassword(String teacherId) throws UpdateTeacherException {
         try {
             TeacherEntity teacherEntity = teacherEntityRepository.selectOne(new LambdaQueryWrapper<TeacherEntity>()
                     .eq(TeacherEntity::getTeacherId, teacherId));
@@ -107,7 +124,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     }
 
     @Override
-    public String getSelectTeacher(Integer payload, String content, Integer quantity, Integer pages) {
+    public String getSelectTeacher(Integer payload, String content, Integer quantity, Integer pages) throws SelectTeacherException {
         try {
             if (quantity <= 0 || pages <= 0 || payload == null) {
                 log.error("请求参数错误");
@@ -145,7 +162,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     }
 
     @Override
-    public String getAllCounselor() {
+    public String getAllCounselor() throws SelectTeacherException {
         try {
             List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllCounselor();
             return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(
@@ -157,7 +174,7 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     }
 
     @Override
-    public String getAllTeacher() {
+    public String getAllTeacher() throws SelectTeacherException {
         try {
             List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllTeacher();
             return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(

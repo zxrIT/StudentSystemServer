@@ -1,0 +1,19 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: authentication-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: 8c0d9f21-63d6-4353-b83f-290886cd95a9
+        group: USER_GROUP
+        prefix: authentication-service-dev.yaml
+        file-extension: yaml
+  config:
+    import:
+      - optional:nacos:authentication-service.yaml?group=USER_GROUP&namespace=8c0d9f21-63d6-4353-b83f-290886cd95a9
+      - optional:nacos:authentication-service-dev.yaml.yaml?group=USER_GROUP&namespace=8c0d9f21-63d6-4353-b83f-290886cd95a9

@@ -14,4 +14,6 @@ public class UpdateStudentParam {
     private Integer studentSex;
     private Integer studentGrade;
     private Integer roleId;
+    private String id;
+    private String college;
 }

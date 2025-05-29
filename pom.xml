@@ -13,6 +13,8 @@
         <module>Common</module>
         <module>Common/Common-Data</module>
         <module>Common/Common-Utils</module>
+        <module>GatwayService</module>
+        <module>AuthenticationService</module>
     </modules>
 
     <properties>
@@ -22,9 +24,13 @@
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
         <mybites-plus.version>3.5.6</mybites-plus.version>
+        <commons-pool2.version>2.11.1</commons-pool2.version>
         <mysql-connection-j.version>8.0.33</mysql-connection-j.version>
+        <hutool-all.version>5.8.22</hutool-all.version>
+        <jjwt.version>0.12.4</jjwt.version>
         <dynamic-datasource-spring-boot3-starter.version>4.1.0</dynamic-datasource-spring-boot3-starter.version>
         <spring-cloud-starter-bootstrap.version>4.0.0</spring-cloud-starter-bootstrap.version>
+        <netty-resolver-dns-native-macos.version>4.2.0.Alpha5</netty-resolver-dns-native-macos.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.3.0</springdoc-openapi-starter-webmvc-ui.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <fastjson2.version>2.0.53</fastjson2.version>

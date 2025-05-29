@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
-@RequestMapping("/teacher")
+@RequestMapping("/user/teacher")
 @SuppressWarnings("all")
 @RequiredArgsConstructor
 @Tag(name = "教师管理", description = "教师相关操作API")

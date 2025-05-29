@@ -1,5 +1,6 @@
 package com.user.management.service.controller;
 
+import com.user.management.service.request.IncrementStudentParam;
 import com.user.management.service.request.ResetPasswordParam;
 import com.user.management.service.request.UpdateStudentParam;
 import com.user.management.service.service.StudentService;
@@ -9,11 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@CrossOrigin
-@RequestMapping("/student")
+@RequestMapping("/user/student")
 @SuppressWarnings("all")
 @RequiredArgsConstructor
 @Tag(name = "学生管理", description = "学生相关操作API")
@@ -64,6 +66,18 @@ public class StudentController {
     @PostMapping("/resetPassword")
     public String resetPassword(@RequestBody ResetPasswordParam resetPasswordParam) {
         return studentService.resetPassword(resetPasswordParam);
+    }
+
+    @Operation(summary = "新增学生")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "重置成功"),
+            @ApiResponse(responseCode = "300", description = "请求参数错误，学生信息不存在"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @PostMapping(value = "/incrementStudent", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String increamentStudent(@RequestPart("data") IncrementStudentParam incrementStudentParam,
+                                    @RequestParam("iconImage") MultipartFile iconImage) {
+        return studentService.incrementStudent(incrementStudentParam, iconImage);
     }
 
     @Operation(summary = "修改学生信息")

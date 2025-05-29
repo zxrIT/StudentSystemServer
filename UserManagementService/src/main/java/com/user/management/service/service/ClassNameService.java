@@ -6,6 +6,10 @@ import com.user.management.service.request.UpdateClassParam;
 
 public interface ClassNameService extends IService<ClassNameEntity> {
     String getClassNames();
+
     String updateClassName(UpdateClassParam updateClassParam);
+
+    String getClassNameByCollege(String collegeName);
+
     String deleteClassName(String classId);
 }

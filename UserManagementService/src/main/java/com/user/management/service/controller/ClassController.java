@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
-@RequestMapping("/class")
+@RequestMapping("/user/class")
 @SuppressWarnings("all")
 @RequiredArgsConstructor
 @Tag(name = "班级管理", description = "班级相关操作API")
@@ -26,6 +25,16 @@ public class ClassController {
     @GetMapping("/getClassNames")
     public String getClassNames() {
         return classNameService.getClassNames();
+    }
+
+    @Operation(summary = "根据学院查询班级数据")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @GetMapping("/getClassNamesByCollege/{collegeName}")
+    public String getClassNamesByCollege(@PathVariable String collegeName) {
+        return classNameService.getClassNameByCollege(collegeName);
     }
 
     @Operation(summary = "修改班级数据")

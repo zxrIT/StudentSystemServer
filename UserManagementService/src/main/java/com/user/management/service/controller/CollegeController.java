@@ -11,10 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/college")
+@RequestMapping("/user/college")
 @SuppressWarnings("all")
 @RequiredArgsConstructor
-@CrossOrigin
 @Tag(name = "学院管理", description = "学院相关操作API")
 public class CollegeController {
     private final CollegeService collegeService;

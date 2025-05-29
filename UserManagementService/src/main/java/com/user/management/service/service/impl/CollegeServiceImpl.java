@@ -18,6 +18,7 @@ import com.user.management.service.service.CollegeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
     private final CollegeRepository collegeRepository;
 
     @Override
-    public String getCollege(Integer quantity, Integer pages) {
+    public String getCollege(Integer quantity, Integer pages) throws SelectCollegeException {
         try {
             if (quantity <= 0 || pages <= 0) {
                 log.error("请求参数错误");
@@ -49,8 +50,8 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
     }
 
     @Override
-    @DSTransactional
-    public String updateCollege(UpdateCollegeParam updateCollegeParam) {
+    @DSTransactional(rollbackFor = Exception.class)
+    public String updateCollege(UpdateCollegeParam updateCollegeParam) throws UpdateCollegeException {
         try {
             CollegeEntity collegeEntity =
                     collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>()
@@ -73,7 +74,7 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
             collegeRepository.update(collegeEntity, new LambdaUpdateWrapper<CollegeEntity>()
                     .eq(CollegeEntity::getId, updateCollegeParam.getId()));
             return JsonSerialization.toJson(new BaseResponse<String>(
-                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "修改成功"
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "修改成功有部分数据未变下次登录后刷新"
             ));
         } catch (Exception exception) {
             throw new UpdateCollegeException(exception.getMessage());
@@ -81,7 +82,7 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
     }
 
     @Override
-    public String getCollegeNames() {
+    public String getCollegeNames() throws SelectCollegeException {
         try {
             List<CollegeEntity> collegeEntities = collegeRepository.selectCollegeNames();
             return JsonSerialization.toJson(new BaseResponse<List<CollegeEntity>>(
@@ -93,8 +94,8 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
     }
 
     @Override
-    @DSTransactional
-    public String updateCollegeIsExistence(UpdateCollegeIsExistenceParam updateCollegeIsExistenceParam) {
+    @DSTransactional(rollbackFor = Exception.class)
+    public String updateCollegeIsExistence(UpdateCollegeIsExistenceParam updateCollegeIsExistenceParam) throws UpdateCollegeException {
         try {
             CollegeEntity collegeEntity =
                     collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(CollegeEntity::getId,
