@@ -92,6 +92,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentRepository, StudentEn
             studentEntity.setStudentName(incrementStudentParam.getStudentName());
             studentEntity.setRoleId(incrementStudentParam.getRoleId());
             studentEntity.setStudentGrade(incrementStudentParam.getStudentGrade());
+            studentEntity.setPassword(Encryption.encryptToMd5(incrementStudentParam.getStudentId()));
             studentEntity.setStudentIcon(fileName);
             studentEntity.setId(UUID.randomUUID().toString() + System.currentTimeMillis());
             ClassNameEntity classNameEntity =
@@ -307,7 +308,21 @@ public class StudentServiceImpl extends ServiceImpl<StudentRepository, StudentEn
             ClassNameEntity classNameEntity =
                     classNameRepository.selectOne(new LambdaQueryWrapper<ClassNameEntity>().eq(ClassNameEntity::getClassName,
                             updateStudentParam.getStudentClass()));
-            studentEntity.setStudentClass(classNameEntity.getClassId());
+            if (!studentEntity.getStudentClass().equals(classNameEntity.getClassId())) {
+                ClassNameEntity classNameEntityOld = classNameRepository.selectOne(new LambdaQueryWrapper<ClassNameEntity>()
+                        .eq(ClassNameEntity::getClassId, studentEntity.getStudentClass()));
+                if (!(classNameEntityOld.getStudentCount() == 0)) {
+                    classNameEntityOld.setStudentCount(classNameEntityOld.getStudentCount() - 1);
+                }
+                classNameEntity.setStudentCount(classNameEntity.getStudentCount() + 1);
+                classNameRepository.update(classNameEntityOld, new LambdaQueryWrapper<ClassNameEntity>().eq(
+                        ClassNameEntity::getClassId, studentEntity.getStudentClass()
+                ));
+                studentEntity.setStudentClass(classNameEntity.getClassId());
+                classNameRepository.update(classNameEntity, new LambdaQueryWrapper<ClassNameEntity>().eq(
+                        ClassNameEntity::getClassName, updateStudentParam.getStudentClass()
+                ));
+            }
             if (classNameEntity == null) {
                 log.error("班级不存在");
                 return JsonSerialization.toJson(new BaseResponse<String>(
@@ -346,6 +361,22 @@ public class StudentServiceImpl extends ServiceImpl<StudentRepository, StudentEn
                 log.error("学生信息不存在");
                 return JsonSerialization.toJson(new BaseResponse<String>(
                         BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "学生不存在"
+                ));
+            }
+            ClassNameEntity classNameEntity =
+                    classNameRepository.selectOne(new LambdaQueryWrapper<ClassNameEntity>().eq(
+                            ClassNameEntity::getClassId, studentEntity.getStudentClass()
+                    ));
+            if (classNameEntity == null) {
+                log.error("学生学院不存在");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "学生学院不存在"
+                ));
+            }
+            if (!(classNameEntity.getStudentCount() == 0)) {
+                classNameEntity.setStudentCount(classNameEntity.getStudentCount() - 1);
+                classNameRepository.update(classNameEntity, new LambdaQueryWrapper<ClassNameEntity>().eq(
+                        ClassNameEntity::getClassId, studentEntity.getStudentClass()
                 ));
             }
             studentRepository.delete(new LambdaQueryWrapper<StudentEntity>().eq(

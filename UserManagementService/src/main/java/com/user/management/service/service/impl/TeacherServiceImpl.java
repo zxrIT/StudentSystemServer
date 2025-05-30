@@ -137,21 +137,45 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
             switch (payload) {
                 case 1:
                     Page<TeacherEntity> teacherEntityPageCollege = teacherEntityRepository.selectTeacherByCollege(page, content);
+                    teacherEntityPageCollege.getRecords().stream().forEach(teacherEntity -> {
+                        CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                                CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                        ));
+                        teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+                    });
                     return JsonSerialization.toJson(new BaseResponse<Page<TeacherEntity>>(
                             BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPageCollege
                     ));
                 case 2:
                     Page<TeacherEntity> teacherEntityPageId = teacherEntityRepository.selectTeacherById(page, content);
+                    teacherEntityPageId.getRecords().stream().forEach(teacherEntity -> {
+                        CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                                CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                        ));
+                        teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+                    });
                     return JsonSerialization.toJson(new BaseResponse<Page<TeacherEntity>>(
                             BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPageId
                     ));
                 case 3:
                     Page<TeacherEntity> teacherEntityPageName = teacherEntityRepository.selectTeacherByName(page, content);
+                    teacherEntityPageName.getRecords().stream().forEach(teacherEntity -> {
+                        CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                                CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                        ));
+                        teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+                    });
                     return JsonSerialization.toJson(new BaseResponse<Page<TeacherEntity>>(
                             BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPageName
                     ));
                 default:
                     Page<TeacherEntity> teacherEntityPage = teacherEntityRepository.selectTeacherPage(page);
+                    teacherEntityPage.getRecords().stream().forEach(teacherEntity -> {
+                        CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                                CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                        ));
+                        teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+                    });
                     return JsonSerialization.toJson(new BaseResponse<Page<TeacherEntity>>(
                             BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntityPage
                     ));
@@ -165,6 +189,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     public String getAllCounselor() throws SelectTeacherException {
         try {
             List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllCounselor();
+            teacherEntities.stream().forEach(teacherEntity -> {
+                CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                        CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                ));
+                teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+            });
             return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(
                     BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntities
             ));
@@ -177,6 +207,12 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
     public String getAllTeacher() throws SelectTeacherException {
         try {
             List<TeacherEntity> teacherEntities = teacherEntityRepository.selectAllTeacher();
+            teacherEntities.stream().forEach(teacherEntity -> {
+                CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                        CollegeEntity::getCollegeId, teacherEntity.getTeacherCollege()
+                ));
+                teacherEntity.setTeacherCollege(collegeEntity.getCollegeName());
+            });
             return JsonSerialization.toJson(new BaseResponse<List<TeacherEntity>>(
                     BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, teacherEntities
             ));
