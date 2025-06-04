@@ -4,8 +4,7 @@ import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.common.exception.entity.user.SelectTeacherException;
-import com.common.exception.entity.user.UpdateTeacherException;
+import com.common.exception.entity.user.*;
 import com.common.response.entity.BaseResponse;
 import com.common.response.entity.BaseResponseUtil;
 import com.common.utils.Encryption;
@@ -14,13 +13,17 @@ import com.user.management.service.entity.CollegeEntity;
 import com.user.management.service.entity.TeacherEntity;
 import com.user.management.service.repository.CollegeRepository;
 import com.user.management.service.repository.TeacherEntityRepository;
+import com.user.management.service.request.IncrementTeacherParam;
 import com.user.management.service.request.UpdateTeacherParam;
 import com.user.management.service.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -28,8 +31,90 @@ import java.util.List;
 @SuppressWarnings("all")
 public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, TeacherEntity>
         implements TeacherService {
+    private static final String UPLOAD_DIR = "/Users/zengxiangrui/DistributedProject/StudentSystem/static";
+
     private final TeacherEntityRepository teacherEntityRepository;
     private final CollegeRepository collegeRepository;
+
+    @Override
+    @DSTransactional
+    public String deleteTeacher(String teacherId) {
+        try {
+            if (!teacherEntityRepository.exists(new LambdaQueryWrapper<TeacherEntity>().eq(
+                    TeacherEntity::getTeacherId, teacherId
+            ))) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误,教师不存在"
+                ));
+            }
+            teacherEntityRepository.delete(new LambdaQueryWrapper<TeacherEntity>().eq(
+                    TeacherEntity::getTeacherId, teacherId
+            ));
+            return JsonSerialization.toJson(new BaseResponse<String>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "删除成功"
+            ));
+        } catch (Exception exception) {
+            throw new DeleteTeacherException(exception.getMessage());
+        }
+    }
+
+    @Override
+    @DSTransactional(rollbackFor = Exception.class)
+    public String incrementTeacher(IncrementTeacherParam incrementTeacherParam, MultipartFile iconImage)
+            throws IncrementTeacherException, UploadTeacherImageException {
+        try {
+            if (teacherEntityRepository.exists(new LambdaQueryWrapper<TeacherEntity>().eq(
+                    TeacherEntity::getTeacherId, incrementTeacherParam.getTeacherId()
+            ))) {
+                log.error("教师序号已存在");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "教师序号已存在"
+                ));
+            }
+            if (teacherEntityRepository.exists(new LambdaQueryWrapper<TeacherEntity>().eq(
+                    TeacherEntity::getTeacherName, incrementTeacherParam.getTeacherName()
+            ))) {
+                log.error("教师名已存在");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "教师名不能重复"
+                ));
+            }
+            String fileUrl = UUID.randomUUID().toString() + "_" +
+                    System.currentTimeMillis() + "_" + iconImage.getOriginalFilename();
+            String fileName = "http://localhost:10000/" + fileUrl;
+            TeacherEntity teacherEntity = new TeacherEntity();
+            teacherEntity.setTeacherId(incrementTeacherParam.getTeacherId());
+            teacherEntity.setTeacherName(incrementTeacherParam.getTeacherName());
+            teacherEntity.setPassword(Encryption.encryptToMd5(incrementTeacherParam.getTeacherId()));
+            teacherEntity.setId(UUID.randomUUID().toString() + System.currentTimeMillis());
+            teacherEntity.setTeacherJob(incrementTeacherParam.getTeacherJob());
+            teacherEntity.setIsCounselor(incrementTeacherParam.getIsCounselor());
+            teacherEntity.setTeacherIcon(fileName);
+            CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                    CollegeEntity::getCollegeName, incrementTeacherParam.getTeacherCollege()
+            ));
+            if (collegeEntity == null) {
+                log.error("学院不存在");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "学院不存在"
+                ));
+            }
+            teacherEntity.setTeacherCollege(collegeEntity.getCollegeId());
+            teacherEntityRepository.insert(teacherEntity);
+            try {
+                File destFile = new File(UPLOAD_DIR + File.separator + fileUrl);
+                iconImage.transferTo(destFile);
+            } catch (Exception exception) {
+                throw new UploadTeacherImageException(exception.getMessage());
+            }
+            return JsonSerialization.toJson(new BaseResponse<String>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "添加成功"
+            ));
+        } catch (Exception exception) {
+            throw new SelectTeacherException(exception.getMessage());
+        }
+    }
 
     @Override
     public String getTeacher(Integer quantity, Integer pages) throws SelectTeacherException {
@@ -77,8 +162,9 @@ public class TeacherServiceImpl extends ServiceImpl<TeacherEntityRepository, Tea
                         BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误，教师序号已存在"
                 ));
             }
-            CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(CollegeEntity::getCollegeName,
-                    updateTeacherParam.getTeacherCollege()));
+            CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>()
+                    .eq(CollegeEntity::getCollegeName,
+                            updateTeacherParam.getTeacherCollege()));
             if (collegeEntity == null) {
                 log.error("请求参数错误");
                 return JsonSerialization.toJson(new BaseResponse<String>(

@@ -1,5 +1,7 @@
 package com.user.management.service.controller;
 
+import com.user.management.service.request.IncrementClassParam;
+import com.user.management.service.request.IncrementCollegeParam;
 import com.user.management.service.request.UpdateClassParam;
 import com.user.management.service.service.ClassNameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +29,18 @@ public class ClassController {
         return classNameService.getClassNames();
     }
 
-    @Operation(summary = "根据学院查询班级数据")
+    @Operation(summary = "添加班级数据")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "添加成功"),
+            @ApiResponse(responseCode = "300", description = "请求参数错误"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @PostMapping("/incrementClass")
+    public String incrementClass(@RequestBody IncrementClassParam incrementClassParam) {
+        return classNameService.incrementClass(incrementClassParam);
+    }
+
+    @Operation(summary = "根据班级查询班级数据")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "查询成功"),
             @ApiResponse(responseCode = "500", description = "服务端错误")

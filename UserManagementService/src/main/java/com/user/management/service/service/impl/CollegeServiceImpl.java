@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.common.exception.entity.user.IncrementCollegeException;
 import com.common.exception.entity.user.SelectCollegeException;
 import com.common.exception.entity.user.UpdateCollegeException;
 import com.common.response.entity.BaseResponse;
@@ -12,15 +13,16 @@ import com.common.response.entity.BaseResponseUtil;
 import com.common.utils.JsonSerialization;
 import com.user.management.service.entity.CollegeEntity;
 import com.user.management.service.repository.CollegeRepository;
+import com.user.management.service.request.IncrementCollegeParam;
 import com.user.management.service.request.UpdateCollegeIsExistenceParam;
 import com.user.management.service.request.UpdateCollegeParam;
 import com.user.management.service.service.CollegeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -46,6 +48,34 @@ public class CollegeServiceImpl extends ServiceImpl<CollegeRepository, CollegeEn
             ));
         } catch (Exception exception) {
             throw new SelectCollegeException(exception.getMessage());
+        }
+    }
+
+    @Override
+    @DSTransactional(rollbackFor = Exception.class)
+    public String incrementCollege(IncrementCollegeParam incrementCollegeParam) throws IncrementCollegeException {
+        try {
+            CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                    CollegeEntity::getCollegeId, incrementCollegeParam.getCollegeId()
+            ));
+            if (!(collegeEntity == null)) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "请求参数错误,学院编号已存在"
+                ));
+            }
+            CollegeEntity newCollegeEntity = new CollegeEntity();
+            newCollegeEntity.setCollegeId(incrementCollegeParam.getCollegeId());
+            newCollegeEntity.setCollegeName(incrementCollegeParam.getCollegeName());
+            newCollegeEntity.setIsExistence(true);
+            newCollegeEntity.setClassCount(incrementCollegeParam.getClassCount());
+            newCollegeEntity.setId(UUID.randomUUID().toString() + System.currentTimeMillis());
+            collegeRepository.insert(newCollegeEntity);
+            return JsonSerialization.toJson(new BaseResponse<String>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, "添加成功"
+            ));
+        } catch (Exception exception) {
+            throw new IncrementCollegeException(exception.getMessage());
         }
     }
 
