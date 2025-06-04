@@ -52,6 +52,18 @@ public class AuthenticationController {
         return loginService.teacherLogin(loginRequestParam, loginId);
     }
 
+    @Operation(summary = "管理员登录")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "登录成功"),
+            @ApiResponse(responseCode = "403", description = "登录失败"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @PostMapping("/admin/login")
+    public String adminLogin(@RequestBody LoginRequestParam loginRequestParam, HttpServletRequest request) {
+        String loginId = request.getHeader(LOGIN_ID);
+        return loginService.adminLogin(loginRequestParam, loginId);
+    }
+
     @Operation(summary = "验证token合法性")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "验证成功"),

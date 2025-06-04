@@ -1,7 +1,6 @@
 package com.user.management.service.controller;
 
 import com.user.management.service.request.IncrementClassParam;
-import com.user.management.service.request.IncrementCollegeParam;
 import com.user.management.service.request.UpdateClassParam;
 import com.user.management.service.service.ClassNameService;
 import io.swagger.v3.oas.annotations.Operation;

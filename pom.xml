@@ -15,6 +15,7 @@
         <module>Common/Common-Utils</module>
         <module>GatwayService</module>
         <module>AuthenticationService</module>
+        <module>CurriculumManagementService</module>
     </modules>
 
     <properties>

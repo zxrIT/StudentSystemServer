@@ -51,7 +51,6 @@ public class TokenManager {
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token);
-
             logger.debug("Token格式验证通过");
             Map<String, String> stringStringMap = extractUserDetails(token);
             if (!stringRedisTemplate.hasKey(redisLoginKey + stringStringMap.get("id"))) {
@@ -96,9 +95,7 @@ public class TokenManager {
                     userDetails.get("id"),
                     userDetails.get("username"),
                     userDetails.get("roleId"));
-
             return userDetails;
-
         } catch (Exception ex) {
             logger.error("提取用户信息失败: {}", ex.getMessage());
             throw new RuntimeException("Token解析失败", ex);
