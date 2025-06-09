@@ -8,6 +8,8 @@ import com.curriculum.management.service.request.UpdateCurriculumParam;
 public interface CurriculumService extends IService<CurriculumEntity> {
     String getCurriculum(Integer quantity, Integer page);
 
+    String getCurriculumById(String courseId);
+
     String getCurriculumDelete(Integer quantity, Integer page);
 
     String getSelectCurriculum(String content, Integer quantity, Integer page);

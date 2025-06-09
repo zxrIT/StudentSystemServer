@@ -1,6 +1,7 @@
 package com.user.management.service.feignService.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.user.data.entity.College;
 import com.user.data.entity.Student;
 import com.user.data.entity.Teacher;
 import com.user.management.service.entity.ClassNameEntity;
@@ -15,11 +16,21 @@ import com.user.management.service.repository.TeacherEntityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 @SuppressWarnings("all")
 @RequiredArgsConstructor
 public class FeignServiceImpl implements FeignService {
+    private static final ExecutorService executor = Executors.newFixedThreadPool(2);
+
     @Autowired
     private final StudentRepository studentRepository;
     private final TeacherEntityRepository teacherRepository;
@@ -74,6 +85,17 @@ public class FeignServiceImpl implements FeignService {
     }
 
     @Override
+    public College getCollegeByCollegeId(String collegeName) {
+        CollegeEntity collegeEntity = collegeRepository.selectOne(new LambdaQueryWrapper<CollegeEntity>().eq(
+                CollegeEntity::getCollegeName, collegeName
+        ));
+        if (collegeEntity == null) {
+            return null;
+        }
+        return collegeEntity;
+    }
+
+    @Override
     public Student getAdminByAdminId(String adminId) {
         StudentEntity studentEntity =
                 studentRepository.selectOne(new LambdaQueryWrapper<StudentEntity>().eq(
@@ -99,5 +121,55 @@ public class FeignServiceImpl implements FeignService {
             studentEntity.setStudentClass(classNameEntity.getClassName());
         }
         return studentEntity;
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getCourseBatch(@RequestBody Map<String, Map<String, String>> requestBody) {
+        Future<?> teacherFuture = executor.submit(() -> processTeacherBatch(requestBody.get("teacher")));
+        Future<?> collegeFuture = executor.submit(() -> processCollegeBatch(requestBody.get("college")));
+        try {
+            teacherFuture.get();
+            collegeFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("处理过程中出错", e);
+        }
+
+        Map<String, Map<String, String>> result = new HashMap<>();
+        result.put("teacher", requestBody.get("teacher"));
+        result.put("college", requestBody.get("college"));
+        return result;
+    }
+
+
+    private void processTeacherBatch(Map<String, String> teacherBatch) {
+        teacherBatch.forEach((key, value) -> {
+            TeacherEntity teacherEntity = teacherRepository.selectOne(
+                    new LambdaQueryWrapper<TeacherEntity>()
+                            .eq(TeacherEntity::getTeacherId, key)
+            );
+            if (teacherEntity == null) {
+                teacherBatch.put(key, null);
+            } else {
+                teacherBatch.put(key, teacherEntity.getTeacherName());
+            }
+        });
+    }
+
+    private void processCollegeBatch(Map<String, String> collegeBatch) {
+        collegeBatch.forEach((key, value) -> {
+            CollegeEntity collegeEntity = collegeRepository.selectOne(
+                    new LambdaQueryWrapper<CollegeEntity>()
+                            .eq(CollegeEntity::getCollegeId, key)
+            );
+            if (collegeEntity == null) {
+                collegeBatch.put(key, null);
+            } else {
+                collegeBatch.put(key, collegeEntity.getCollegeName());
+            }
+            if (key.equals("all")) {
+                collegeBatch.put(key, "不限");
+            }
+        });
     }
 }

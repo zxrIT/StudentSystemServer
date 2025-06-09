@@ -78,14 +78,13 @@ public class TokenManager {
         }
     }
 
-    public Map<String, String> extractUserDetails(String token) {
+    public Map<String, String> extractUserDetails(String token) throws JWTParsingException {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-
             Map<String, String> userDetails = new HashMap<>();
             userDetails.put("id", claims.get("id", String.class));
             userDetails.put("username", claims.get("username", String.class));
@@ -96,9 +95,9 @@ public class TokenManager {
                     userDetails.get("username"),
                     userDetails.get("roleId"));
             return userDetails;
-        } catch (Exception ex) {
-            logger.error("提取用户信息失败: {}", ex.getMessage());
-            throw new RuntimeException("Token解析失败", ex);
+        } catch (Exception exception) {
+            logger.error("提取用户信息失败: {}", exception.getMessage());
+            throw new JWTParsingException("Token解析失败" + exception.getMessage());
         }
     }
 }

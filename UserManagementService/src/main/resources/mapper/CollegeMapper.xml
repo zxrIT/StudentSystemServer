@@ -12,6 +12,7 @@
                type="com.user.management.service.entity.CollegeEntity">
         <result column="id" property="id"/>
         <result column="college_name" property="collegeName"/>
+        <result column="college_id" property="collegeId"/>
     </resultMap>
     <select id="selectCollegePage" resultMap="collegeResultMap">
         SELECT college_id,
@@ -22,7 +23,7 @@
         FROM college
     </select>
     <select id="selectCollegeNames" resultMap="collegeNamesResultMap">
-        SELECT college_name, id
+        SELECT college_name, id, college_id
         FROM college
         where is_existence = true
     </select>

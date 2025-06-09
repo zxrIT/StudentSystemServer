@@ -17,6 +17,14 @@ spring:
           uri: lb://curriculum-management-service
           predicates:
             - Path=/curriculum/**
+        - id: publish-service
+          uri: lb://publish-service
+          predicates:
+            - Path=/publish/**
+        - id: course-selection-service
+          uri: lb://course-selection-service
+          predicates:
+            - Path=/selection/**
 health:
   auth:
     excludePaths:

@@ -30,6 +30,16 @@ public class CurriculumController {
         return curriculumService.getCurriculum(quantity, page);
     }
 
+    @Operation(summary = "根据课程id数据")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "查询成功"),
+            @ApiResponse(responseCode = "500", description = "服务端错误")
+    })
+    @GetMapping("/getCurriculumById/{courseId}")
+    private String getCurriculumById(@PathVariable String courseId) {
+        return curriculumService.getCurriculumById(courseId);
+    }
+
     @Operation(summary = "查询回收站课程数据")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "查询成功"),

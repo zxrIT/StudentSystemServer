@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.course.selection.service.repository.CourseSelectionEntityRepository">
+    <resultMap id="BaseResultMap" type="com.course.selection.service.entity.CourseSelectionEntity">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="course_id" property="courseId" jdbcType="VARCHAR"/>
+        <result column="course_name" property="courseName" jdbcType="VARCHAR"/>
+        <result column="course_type" property="courseType" jdbcType="INTEGER"/>
+        <result column="course_credits" property="courseCredits" jdbcType="DOUBLE"/>
+        <result column="course_credit_hour" property="courseCreditHour" jdbcType="INTEGER"/>
+        <result column="course_location" property="courseLocation" jdbcType="VARCHAR"/>
+        <result column="teacher_id" property="teacherId" jdbcType="VARCHAR"/>
+        <result column="course_capacity" property="courseCapacity" jdbcType="INTEGER"/>
+        <result column="course_capacity_temp" property="courseCapacityTemp" jdbcType="INTEGER"/>
+        <result column="publish_status" property="publishStatus" jdbcType="INTEGER"/>
+        <result column="course_grade" property="courseGrade" jdbcType="INTEGER"/>
+        <result column="course_college" property="courseCollege" jdbcType="VARCHAR"/>
+        <result column="remainder_course_capacity" property="remainderCourseCapacity" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="selectStudentCourses" resultMap="BaseResultMap">
+        SELECT
+        id, course_id, course_name, course_type,
+        course_credits, course_credit_hour, course_location,
+        teacher_id, course_capacity, course_capacity_temp,
+        publish_status, course_grade, course_college,
+        remainder_course_capacity
+        FROM course_entity
+        WHERE publish_status = 1
+        AND (
+        (course_grade = #{studentGrade} AND course_college = #{collegeId})
+        OR (course_grade = 0 AND course_college = 'all')
+        OR (course_grade = 0 AND course_college = #{collegeId})
+        OR (course_grade = #{studentGrade} AND course_college = 'all')
+        )
+        LIMIT #{offset}, #{pageSize}
+    </select>
+    <select id="countStudentCourses" resultType="int">
+        SELECT COUNT(*)
+        FROM course_entity
+        WHERE publish_status = 1
+          AND (
+            (course_grade = #{studentGrade} AND course_college = #{collegeId})
+                OR (course_grade = 0 AND course_college = 'all')
+                OR (course_grade = 0 AND course_college = #{collegeId})
+                OR (course_grade = #{studentGrade} AND course_college = 'all')
+            )
+    </select>
+</mapper>

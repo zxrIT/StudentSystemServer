@@ -11,6 +11,10 @@
 
     <artifactId>Common</artifactId>
     <packaging>pom</packaging>
+    <modules>
+        <module>Common-RabbitMQ</module>
+        <module>Common-Component</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

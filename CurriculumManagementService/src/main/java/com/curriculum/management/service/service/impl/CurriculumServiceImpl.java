@@ -59,6 +59,26 @@ public class CurriculumServiceImpl extends ServiceImpl<CurriculumEntityRepositor
     }
 
     @Override
+    public String getCurriculumById(String courseId) throws SelectCurriculumException {
+        try {
+            CurriculumEntity curriculumEntity =
+                    curriculumEntityRepository.selectOne(new LambdaQueryWrapper<CurriculumEntity>(
+                    ).eq(CurriculumEntity::getId, courseId));
+            if (curriculumEntity == null) {
+                log.error("请求参数错误");
+                return JsonSerialization.toJson(new BaseResponse<String>(
+                        BaseResponseUtil.CLIENT_ERROR_CODE, BaseResponseUtil.CLIENT_ERROR_MESSAGE, "获取课程失败请重试"
+                ));
+            }
+            return JsonSerialization.toJson(new BaseResponse<CurriculumEntity>(
+                    BaseResponseUtil.SUCCESS_CODE, BaseResponseUtil.SUCCESS_MESSAGE, curriculumEntity
+            ));
+        } catch (Exception exception) {
+            throw new SelectCurriculumException(exception.getMessage());
+        }
+    }
+
+    @Override
     public String getCurriculumDelete(Integer quantity, Integer pages) throws SelectCurriculumException {
         try {
             if (quantity <= 0 || pages <= 0) {

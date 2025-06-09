@@ -1,0 +1,19 @@
+server:
+  port: 8040
+spring:
+  application:
+    name: publish-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: 8c0d9f21-63d6-4353-b83f-290886cd95a9
+        group: USER_GROUP
+        prefix: publish-service-dev
+        file-extension: yaml
+  config:
+    import:
+      - optional:nacos:publish-service-dev.yaml?group=USER_GROUP&namespace=8c0d9f21-63d6-4353-b83f-290886cd95a9
+      - optional:nacos:publish-service-dev-dev.yaml?group=USER_GROUP&namespace=8c0d9f21-63d6-4353-b83f-290886cd95a9

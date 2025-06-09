@@ -16,6 +16,8 @@
         <module>GatwayService</module>
         <module>AuthenticationService</module>
         <module>CurriculumManagementService</module>
+        <module>CourseSelectionService</module>
+        <module>PublishService</module>
     </modules>
 
     <properties>

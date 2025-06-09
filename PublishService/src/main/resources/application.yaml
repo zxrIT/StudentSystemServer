@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    dynamic:
+      primary: master_course_publish
+      strict: false
+      datasource:
+        master_course_publish:
+          username: root
+          password: root1234
+          url: jdbc:mysql://127.0.0.1/student_course_publish?characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+          driver-class-name: com.mysql.cj.jdbc.Driver
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+  api-docs:
+    path: /api-docs
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    com.publish.service: debug
